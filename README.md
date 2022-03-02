@@ -23,7 +23,10 @@
 
 - [同步调用](/src/easy.js)
 - [异步调用](/src/easy-async.js)
-- [支持 then 多次调用]()
+- [支持 then 多次调用](/src/easy-many.js)
+- [支持链式调用]()
+- [异步链式调用]()
+- [Promise A+ 规范实现]()
 
 ## 在 Promise 中添加 异步逻辑
 
@@ -52,7 +55,7 @@ promise.then(value => {
 
 </details>
 
-### 代码实现：
+代码实现：
 
 <details><summary>点击查看</summary>
 
@@ -216,6 +219,14 @@ const reject = (reason) => {
 ```
 
 </details>
+
+## 四、实现 then 方法的链式调用
+
+1. 链式调用需要返回一个新的 promise
+2. 在 then 函数中，无论成功还是失败，只要返回了结果，就会传到下一个 then 的成功回调
+3. 如果出现错误就会传入下一个 then 的失败回调
+4. 即：下一个 then 的状态和上一个 then 执行时候状态无关
+5. 所以在 then 执行的时候 onFulfilled, onRejected 可能会出现报错，需要捕获错误，并执行失败回调（处理成失败状态）
 
 
 
