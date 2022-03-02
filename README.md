@@ -27,7 +27,7 @@
 ## 在 Promise 中添加 异步逻辑
 
 ```js
-const Promise = require('./Promise')
+const Promise = require('./src/easy.js')
 const promise = new Promise((resolve, reject) => {
   setTimeout(() => {
     resolve('success')
@@ -44,3 +44,36 @@ promise.then(value => {
 主线程代码立即执行， setTimeout 是异步代码，then 会马上执行，
 
 这个时候判断 Promise 状态， 状态是 Pending，然而之前并没有判断等待这个状态
+
+### 代码实现：
+
+```js
+// resolvedCallbacks 存储成功的函数
+this.resolvedCallbacks = null
+
+// rejectedCallbacks 存储失败的函数
+this.rejectedCallbacks = null
+
+
+then(onFulfilled, onRejected) {
+  if (this.state === RESOLVED) {
+    // 成功状态的调用
+    onFulfilled(this.value)
+  }
+
+  if (this.state === REJECTED) {
+    // 失败状态的调用
+    onRejected(this.reason)
+  }
+
+  // === 新增 ===
+  // 当 Promise 状态为等待中（pending）时，
+  if (this.state === PENDING) {
+    // 存入成功函数
+    this.resolvedCallbacks = onFulfilled
+
+    // 存入失败函数
+    this.rejectedCallbacks = onRejected
+  }
+}
+```
