@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "test:easy": "node test/easy.js"
+    "test:easy": "node test/easy.js",
+    "test:easy-async": "node test/easy-async.js"
   },
   "author": "tangxve",
   "license": "ISC"
