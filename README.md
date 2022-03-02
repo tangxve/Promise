@@ -10,9 +10,9 @@
 
 1. Promise 是一个类，在执行这个类的时候会传入一个执行器，这个执行器会立即执行
 2. Promise 会有三种状态
-    1. Pending 等待
-    2. Fulfilled 完成
-    3. Rejected 失败
+  1. Pending 等待
+  2. Fulfilled 完成
+  3. Rejected 失败
 3. 状态只能由 Pending --> Fulfilled 或者 Pending --> Rejected，且一但发生改变便不可二次修改
 4. Promise 中使用 resolve 和 reject 两个函数来更改状态
 5. then 方法内部做但事情就是状态判断
