@@ -124,7 +124,6 @@ class Promise {
           try {
             // 为了链式调用，需要获取 onRejected 函数执行的返回值，通过 resolve 返回
             const x = onRejected(this.reason)
-
             // 对 x 做一层判断，是否是个 Promise，如果是就执行 x.then, 并将 resolve 作为参数传入
             x.then ? x.then(resolve) : resolve(x)
           } catch (e) {
@@ -143,11 +142,9 @@ class Promise {
         this.resolvedCallbacks.push(() => {
           try {
             const x = onFulfilled(this.value)
-
             // 对 x 做一层判断，是否是个 Promise，如果是就执行 x.then, 并将 resolve 作为参数传入
             x.then ? x.then(resolve) : resolve(x)
           } catch (e) {
-            console.log(e)
             reject(e)
           }
         })
@@ -155,8 +152,7 @@ class Promise {
         // 存入失败函数
         this.rejectedCallbacks.push(() => {
           try {
-            const x = onFulfilled(this.value)
-
+            const x = onRejected(this.reason)
             // 对 x 做一层判断，是否是个 Promise，如果是就执行 x.then, 并将 resolve 作为参数传入
             x.then ? x.then(resolve) : resolve(x)
           } catch (e) {
