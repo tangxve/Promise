@@ -26,7 +26,7 @@
 - [支持 then 多次调用](/src/easy-many.js)
 - [支持链式调用](/src/easy-chain.js)
 - [异步链式调用](/src/easy-chain-async.js)
-- [Promise A+ 规范实现]()
+- [Promise A+ 规范实现](/src/promise.js)
 
 ## 在 Promise 中添加 异步逻辑
 
@@ -220,7 +220,7 @@ const reject = (reason) => {
 
 </details>
 
-## 四、实现 then 方法的链式调用
+## 实现 then 方法的链式调用
 
 1. 链式调用需要返回一个新的 promise
 2. 在 then 函数中，无论成功还是失败，只要返回了结果，就会传到下一个 then 的成功回调
@@ -300,9 +300,9 @@ then(onFulfilled, onRejected)
 
 </details>
 
-## then 方法链式调用识别 Promise 是否返回自己
+## then 方法链式调用是否返回一个 Promise 对象
 
-> 如果 then 方法返回的是自己的 Promise 对象，则会发生循环调用
+> 如果 then 方法返回的是 Promise 对象，则执行 then
 
 
 查看例子：
@@ -410,6 +410,55 @@ then(onFulfilled, onRejected)
 ```
 
 </details>
+
+## then 中的参数变成可选择
+
+处理 then 方法的时候都是默认传入 onFulfilled、onRejected 两个回调函数，但是实际上原生 Promise 是可以选择参数的单传或者不传
+
+例如下面这种👇：
+
+<details><summary>点击查看</summary>
+
+```js
+const promise = new Promise((resolve, reject) => {
+  resolve(100)
+})
+
+promise
+  .then()
+  .then()
+  .then()
+  .then(value => console.log(value))
+
+// 输出 100
+```
+
+</details>
+
+
+需要对 then 的参数做下调整
+
+<details><summary>点击查看</summary>
+
+```js
+then(onFulfilled, onRejected)
+{
+  // then 中的参数变成可选择，如果没有就默认添加
+  onFulfilled = isFunction(onFulfilled) ? onRejected : (v) => v
+  onRejected = isFunction(onRejected) ? onRejected : (r) => {throw r}
+
+  // ...
+}
+```
+
+</details>
+
+## 根据 Promise A+ 规范完善
+
+- 2.3.1 promise2 返回结果 x 为自身，应直接执行 reject
+- 2.3.2 如果 x 是一个 Promise 实例，则执行它的 then 方法
+
+
 
 
 
