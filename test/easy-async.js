@@ -5,13 +5,11 @@ new Promise((resolve, reject) => {
   setTimeout(() => {
     resolve('成功')
   }, 1000)
-}).then(
-  (res) => {
-    console.log('easy-async 1 res ==>', res)
-  },
-  (err) => {
-    console.log('easy-async 1 err ==>', err)
-  })
+}).then((res) => {
+  console.log('easy-async 1 res ==>', res)
+}, (err) => {
+  console.log('easy-async 1 err ==>', err)
+})
 const promise = new Promise((resolve, reject) => {
   setTimeout(() => {
     resolve('成功')
@@ -31,3 +29,4 @@ new Promise((resolve, reject) => {
 }, err => {
   console.log('easy-async 3 err ==>', err)
 })
+
