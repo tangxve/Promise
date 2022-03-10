@@ -65,14 +65,10 @@ function resolutionProcedure(promise2, x, resolve, reject) {
 
   // 规范 2.3.2 如果 x 是 Promise 实例，就执行 then
   if (x instanceof Promise) {
-    x.then(
-      /**
-       * 继续调用 resolutionProcedure 解析
-       * 防止 value 的返回值还是一个 Promise
-       */
-      (value) => resolutionProcedure(promise2, value, resolve, reject),
-      reject
-    )
+    x.then(/**
+     * 继续调用 resolutionProcedure 解析
+     * 防止 value 的返回值还是一个 Promise
+     */(value) => resolutionProcedure(promise2, value, resolve, reject), reject)
   }
 
 
@@ -91,21 +87,17 @@ function resolutionProcedure(promise2, x, resolve, reject) {
       if (isFunction(then)) {
         // 2.3.3.3 如果 then 是一个方法，把 x 当作 this 来调用
         // 其中第一个参数为 resolvePromise，第二个参数为 rejectPromise
-        then.call(
-          x,
-          (y) => {
-            if (called) return
-            called = true
-            // 防止 y 的返回值还是一个 Promise
-            resolutionProcedure(promise2, y, resolve, reject)
-          },
-          (r) => {
-            // 失败结果会向下传递
-            if (called) return
-            called = true
-            reject(r)
-          }
-        )
+        then.call(x, (y) => {
+          if (called) return
+          called = true
+          // 防止 y 的返回值还是一个 Promise
+          resolutionProcedure(promise2, y, resolve, reject)
+        }, (r) => {
+          // 失败结果会向下传递
+          if (called) return
+          called = true
+          reject(r)
+        })
       } else {
         // 2.3.3.4 如果 then 不是一个函数，用 x 完成 promise
         resolve(x)
@@ -286,10 +278,7 @@ class Promise {
    * https://es6.ruanyifeng.com/#docs/promise#Promise-prototype-finally
    */
   finally(cb) {
-    return this.then(
-      (v) => Promise.resolved(cb()).then(() => v),
-      (e) => Promise.resolved(cb()).then(() => {throw e})
-    )
+    return this.then((v) => Promise.resolve(cb()).then(() => v), (e) => Promise.resolve(cb()).then(() => {throw e}))
   }
 
   /**
@@ -297,8 +286,7 @@ class Promise {
    * 将现有对象转为 Promise 实例，该实例的状态为 resolved
    * https://es6.ruanyifeng.com/#docs/promise#Promise-resolve
    */
-
-  static resolved(value) {
+  static resolve(value) {
     if (value instanceof Promise) {
       return value
     }
@@ -315,6 +303,82 @@ class Promise {
     })
   }
 
+  /**
+   * Promise.reject() 实现
+   * 将现有对象转为 Promise 实例，该实例的状态为 rejected
+   * https://es6.ruanyifeng.com/#docs/promise#Promise-reject
+   */
+  static reject(err) {
+    return new Promise((resolve, reject) => {
+      reject(err)
+    })
+  }
+
+  /**
+   * Promise.all() 实现
+   * 用于将多个 Promise 实例，包装成一个新的 Promise 实例
+   * 只有所有的 Promise 状态成功才会成功，如果其中一个 Promise 的状态失败就会失败
+   * https://es6.ruanyifeng.com/#docs/promise#Promise-all
+   */
+  static all(promises) {
+    return new Promise((resolve, reject) => {
+      if (!isIterator(promises)) {
+        reject(new TypeError('参数必须为 Iterator'))
+        return
+      }
+
+      const result = []
+
+      if (promises.length === 0) {
+        resolve(result)
+        return
+      }
+
+      // 记录当前已成功的 Promise 数量
+      let doneNum = 0
+
+      // resolve 验证函数
+      function check(i, data) {
+        reject[i] = data
+        doneNum++
+
+        // 只有成功的 Promise 数量等于传入的数组长度时才调用 resolve
+        if (doneNum === promises.length) {
+          resolve(result)
+          return
+        }
+      }
+
+      // 异步并行直接 promise
+      for (let i = 0; i < promises.length; i++) {
+        Promise.resolve(promises[i]).then((v) => {check(i, v)}, (e) => {
+          // 如果有一个 promise 失败，就直接 reject
+          reject(e)
+          return
+        })
+      }
+    })
+  }
+
+  /**
+   * Promise.race() 实现
+   * 用于将多个 Promise 实例，包装成一个新的 Promise 实例
+   * 新的 Promise 实例状态会根据最先更改状态的 Promise 而更改状态
+   * https://es6.ruanyifeng.com/#docs/promise#Promise-race
+   */
+  static race(promises) {
+    return new Promise((resolve, reject) => {
+      if (!isIterator(promises)) {
+        reject(new TypeError('参数必须为 Iterator'))
+        return
+      }
+
+      for (let i = 0; i < promises.length; i++) {
+        // 只要有一个 Promise 状态发生改变，就调用其状态对应的回调方法
+        Promise.resolve(promises[i]).then(resolve, reject)
+      }
+    })
+  }
 }
 
 
