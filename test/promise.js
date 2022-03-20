@@ -9,7 +9,7 @@ const promises = [
     return
     console.log(222)
   }),
-  new Promise((resolve) => {
+  new Promise((resolve,reject) => {
     resolve(3)
     console.log(333)
   })
@@ -18,4 +18,6 @@ const promises = [
 Promise.race(promises).then(v => {
   console.log(v)
 })
+
+// console.log('process', process)
 
