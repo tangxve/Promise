@@ -27,6 +27,98 @@
 - [支持链式调用](/src/easy-chain.js)
 - [异步链式调用](/src/easy-chain-async.js)
 - [Promise A+ 规范实现](/src/promise.js)
+    - Promise.prototype.then()
+    - Promise.prototype.catch()
+    - Promise.prototype.finally()
+    - Promise.resolve()
+    - Promise.reject()
+    - Promise.all()
+    - Promise.race()
+    - Promise.allSettled()
+        - 返回是一个数字对象
+    - Promise.any()
+    - Promise.promisify()
+
+## 面试问题：
+
+- resolve() 和 reject() 是异步函数，只有 .then() 或者 .catch() 执行才会调用他们
+- new Promise(() => {})，其中() => {} 里面的代码是正常同步执行的，除了resolve() 和 reject()，和一些异步方法
+
+## 方法的使用场景
+
+### Promise.allSettled()
+
+Promise.allSettled() 的返回值 allSettledPromise，状态只可能变成fulfilled。
+
+它的回调函数接收到的参数是数组 results。
+
+该数组的每个成员都是一个对象，对应传入 Promise.allSettled() 的数组里面的两个 Promise 对象。
+
+```js
+const resolved = Promise.resolve(42);
+const rejected = Promise.reject(-1);
+
+const allSettledPromise = Promise.allSettled([resolved, rejected]);
+
+allSettledPromise.then(function (results) {
+  console.log(results);
+});
+// [
+//    { status: 'fulfilled', value: 42 },
+//    { status: 'rejected', reason: -1 }
+// ]
+```
+
+results 的每个成员是一个对象，对象的格式是固定的，对应异步操作的结果。
+
+Promise.allSettled().then() 的结果：
+
+```js
+// 
+
+[
+  // 异步操作成功时
+  {status: 'fulfilled', value: value},
+
+  // 异步操作失败时
+  {status: 'rejected', reason: reason}
+]
+
+```
+
+
+
+
+### Promise 简单场景
+
+- 做一些异步处理，加载图片，方法回调等
+
+加载图片方法：
+
+<details><summary>点击查看</summary>
+
+```js
+const preloadImage = function (path) {
+  return new Promise((resolve, reject) => {
+    const imge = new Image()
+    imge.onload = resolve
+    imge.onerror = reject
+    imge.src = path
+  })
+}
+```
+
+</details>
+
+### Promise.resolve() 使用场景
+
+```js
+Promise.resolve('foo')
+
+等价于
+
+new Promise(resolve => resolve('foo'))
+```
 
 ## 在 Promise 中添加 异步逻辑
 

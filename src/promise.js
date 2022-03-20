@@ -33,11 +33,10 @@ function isIterator(value) {
 
 //  为了确保 onFulfilled 和 onRejected 方法异步执行，且应该在 then 方法被调用的那一轮事件循环之后的新执行栈中执行
 function nextTick(fn) {
-  // 判断环境
-  if (typeof this === 'undefined') {
+  if (typeof window !== 'undefined') {
     window.queueMicrotask(fn)
   } else {
-    setTimeout(fn, 0)
+    process.nextTick(fn)
   }
 }
 
@@ -376,6 +375,109 @@ class Promise {
       for (let i = 0; i < promises.length; i++) {
         // 只要有一个 Promise 状态发生改变，就调用其状态对应的回调方法
         Promise.resolve(promises[i]).then(resolve, reject)
+      }
+    })
+  }
+
+  /**
+   * Promise.allSettled() 实现
+   * 用于将多个 Promise 实例，包装成一个新的 Promise 实例
+   * 新的 Promise 实例只有等到所有这些参数实例都返回结果，不管是 resolved 还是 rejected ，包装实例才会结束，一旦结束，状态总是 resolved
+   * 和 Promise.all 区别：Promise.all 如果有失败就立即返回 rejected，并不会全部执行
+   *
+   * 返回的是数组对象
+   * 该方法由 ES2020 引入
+   * https://es6.ruanyifeng.com/#docs/promise#Promise-allSettled
+   */
+  static allSettled(promises) {
+    return new Promise((resolve, reject) => {
+      // 如果不能遍历(不为 Iterator ) 直接 reject, 语法错误
+      if (!isIterator(promises)) {
+        reject(new TypeError('参数必须为 Iterator'))
+        return
+      }
+
+      const result = []
+
+      if (promises.length === 0) {
+        resolve(result)
+        return
+      }
+
+      // 记录当前已成功的 Promise 数量
+      let doneNum = 0
+
+      // resolve 验证函数
+      function check(i, data) {
+        reject[i] = data
+        doneNum++
+
+        // 只有成功的 Promise 数量等于传入的数组长度时才调用 resolve
+        if (doneNum === promises.length) {
+          resolve(result)
+          return
+        }
+      }
+
+      for (let i = 0; i < promises.length; i++) {
+        Promise.resolve(promises[i]).then(
+          (value) => {
+            check(i, {
+              status: RESOLVED,
+              value
+            })
+          },
+          (reason) => {
+            check(i, {
+              status: REJECTED,
+              reason,
+            })
+          }
+        )
+      }
+    })
+  }
+
+
+  /**
+   * Promise.any() 实现
+   * 用于将多个 Promise 实例，包装成一个新的 Promise 实例
+   * 只要参数实例有一个变成 resolved 状态，包装实例就会变成 resolved 状态；如果所有参数实例都变成 rejected 状态，包装实例就会变成 rejected 状态
+   *  和 all 有点相反
+   * https://es6.ruanyifeng.com/#docs/promise#Promise-any
+   */
+  static any(promises) {
+    return new Promise((resolve, reject) => {
+      // 如果不能遍历(不为 Iterator ) 直接 reject, 语法错误
+      if (!isIterator(promises)) {
+        reject(new TypeError('参数必须为 Iterator'))
+        return
+      }
+
+      // 失败的次数
+      const rejects = []
+
+      // 记录数量
+      let num = 0
+
+      function check(i, data) {
+        rejects[i] = data
+        num++
+
+        // 只有失败的 promise 数量登入传入数组的长度，调用 regect
+        if (num === promises.length) {
+          reject(rejects)
+        }
+      }
+
+      for (let i = 0; i < promises.length; i++) {
+        // 如果有一个成功就算成功，失败的记录下来
+        Promise.resolve(promises[i].then(
+          resolve,
+          (r) => {
+            check(i, r)
+          }
+        ))
       }
     })
   }
