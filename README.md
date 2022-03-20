@@ -41,6 +41,8 @@
 
 ## 面试问题：
 
+Promise 的所有方法都是同步执行的，返回 Promise 状态，当去执行 .then() 或者 .catch() 才会到异步 
+
 - resolve() 和 reject() 是异步函数，只有 .then() 或者 .catch() 执行才会调用他们
 - new Promise(() => {})，其中() => {} 里面的代码是正常同步执行的，除了resolve() 和 reject()，和一些异步方法
 
