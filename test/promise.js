@@ -19,10 +19,12 @@
 //   console.log(v)
 // })
 
+// console.log('process', process)
+
+
 console.log(111)
 console.log(Promise.reject(222))
 console.log(333)
 console.log(Promise.resolve(444))
 
-// console.log('process', process)
 
