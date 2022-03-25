@@ -7,11 +7,11 @@
  */
 
 // 等待状态
-const PENDING = 'PENDING'
+const PENDING = 'pending'
 // 成功状态
-const RESOLVED = 'RESOLVED'
+const FULFILLED = 'fulfilled'
 // 失败状态
-const REJECTED = 'REJECTED'
+const REJECTED = 'rejected'
 
 
 /**
@@ -141,7 +141,7 @@ class Promise {
     const resolve = (value) => {
         nextTick(() => {
           if (this.state === PENDING) {
-            this.state = RESOLVED
+            this.state = FULFILLED
             this.value = value
             // 执行所有的回调函数
             this.resolvedCallbacks.forEach(fn => fn())
@@ -192,7 +192,7 @@ class Promise {
      */
     const promise2 = new Promise((resolve, reject) => {
       // 成功状态的调用
-      if (this.state === RESOLVED) {
+      if (this.state === FULFILLED) {
         // 如果 x 是个 Promise 需要用异步等待 x 初始化完成
         nextTick(() => {
           try {
@@ -423,7 +423,7 @@ class Promise {
         Promise.resolve(promises[i]).then(
           (value) => {
             check(i, {
-              status: RESOLVED,
+              status: FULFILLED,
               value
             })
           },
@@ -481,6 +481,17 @@ class Promise {
       }
     })
   }
+}
+
+
+Promise.deferred = function () {
+  var result = {}
+  result.promise = new Promise(function (resolve, reject) {
+    result.resolve = resolve
+    result.reject = reject
+  })
+
+  return result
 }
 
 
