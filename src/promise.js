@@ -180,7 +180,7 @@ class Promise {
    */
   then(onFulfilled, onRejected) {
     // then 中的参数变成可选择，如果没有就默认添加
-    onFulfilled = isFunction(onFulfilled) ? onRejected : (v) => v
+    onFulfilled = isFunction(onFulfilled) ? onFulfilled : (v) => v
     onRejected = isFunction(onRejected) ? onRejected : (r) => {throw r}
 
     /**
