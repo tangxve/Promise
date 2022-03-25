@@ -4,11 +4,14 @@
   "description": "promise",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "promises-aplus-tests src/promise.js",
     "test:easy": "node test/easy.js",
     "test:easy-async": "node test/easy-async.js",
     "test:easy-many": "node test/easy-many.js"
   },
   "author": "tangxve",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "promises-aplus-tests": "^2.1.2"
+  }
 }
