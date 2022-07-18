@@ -258,7 +258,6 @@ class Promise {
 
   }
 
-
   /**
    * Promise.prototype.catch() 实现
    * catch 用于指定发生错误时的回调函数，实际就是 .then(null, onRejected) 的别名
@@ -380,6 +379,49 @@ class Promise {
   }
 
   /**
+   * Promise.any() 实现
+   * 用于将多个 Promise 实例，包装成一个新的 Promise 实例
+   * 只要参数实例有一个变成 resolved 状态，包装实例就会变成 resolved 状态；如果所有参数实例都变成 rejected 状态，包装实例就会变成 rejected 状态
+   *  和 all 有点相反
+   * https://es6.ruanyifeng.com/#docs/promise#Promise-any
+   */
+  static any(promises) {
+    return new Promise((resolve, reject) => {
+      // 如果不能遍历(不为 Iterator ) 直接 reject, 语法错误
+      if (!isIterator(promises)) {
+        reject(new TypeError('参数必须为 Iterator'))
+        return
+      }
+
+      // 失败的次数
+      const rejects = []
+
+      // 记录数量
+      let num = 0
+
+      function check(i, data) {
+        rejects[i] = data
+        num++
+
+        // 只有失败的 promise 数量登入传入数组的长度，调用 regect
+        if (num === promises.length) {
+          reject(rejects)
+        }
+      }
+
+      for (let i = 0; i < promises.length; i++) {
+        // 如果有一个成功就算成功，失败的记录下来
+        Promise.resolve(promises[i].then(
+          resolve,
+          (r) => {
+            check(i, r)
+          }
+        ))
+      }
+    })
+  }
+
+  /**
    * Promise.allSettled() 实现
    * 用于将多个 Promise 实例，包装成一个新的 Promise 实例
    * 新的 Promise 实例只有等到所有这些参数实例都返回结果，不管是 resolved 还是 rejected ，包装实例才会结束，一旦结束，状态总是 resolved
@@ -437,53 +479,9 @@ class Promise {
       }
     })
   }
-
-
-  /**
-   * Promise.any() 实现
-   * 用于将多个 Promise 实例，包装成一个新的 Promise 实例
-   * 只要参数实例有一个变成 resolved 状态，包装实例就会变成 resolved 状态；如果所有参数实例都变成 rejected 状态，包装实例就会变成 rejected 状态
-   *  和 all 有点相反
-   * https://es6.ruanyifeng.com/#docs/promise#Promise-any
-   */
-  static any(promises) {
-    return new Promise((resolve, reject) => {
-      // 如果不能遍历(不为 Iterator ) 直接 reject, 语法错误
-      if (!isIterator(promises)) {
-        reject(new TypeError('参数必须为 Iterator'))
-        return
-      }
-
-      // 失败的次数
-      const rejects = []
-
-      // 记录数量
-      let num = 0
-
-      function check(i, data) {
-        rejects[i] = data
-        num++
-
-        // 只有失败的 promise 数量登入传入数组的长度，调用 regect
-        if (num === promises.length) {
-          reject(rejects)
-        }
-      }
-
-      for (let i = 0; i < promises.length; i++) {
-        // 如果有一个成功就算成功，失败的记录下来
-        Promise.resolve(promises[i].then(
-          resolve,
-          (r) => {
-            check(i, r)
-          }
-        ))
-      }
-    })
-  }
 }
 
-
+// 测试用例
 Promise.deferred = function () {
   var result = {}
   result.promise = new Promise(function (resolve, reject) {
