@@ -6,6 +6,25 @@
 - [中文翻译 - 图灵社区](https://www.ituring.com.cn/article/66566)
 - [中文翻译 - 掘金](https://juejin.im/post/5b6161e6f265da0f8145fb72)
 
+## 功能实现
+
+- [同步调用](/src/easy.js)
+- [异步调用](/src/easy-async.js)
+- [支持 then 多次调用](/src/easy-many.js)
+- [支持链式调用](/src/easy-chain.js)
+- [异步链式调用](/src/easy-chain-async.js)
+- [Promise A+ 规范实现](/src/promise.js)
+    - [Promise.prototype.then()](/src/promise.js)
+    - Promise.prototype.catch()
+    - Promise.prototype.finally()
+    - Promise.resolve()
+    - Promise.reject()
+    - Promise.all()
+    - Promise.race()
+    - Promise.allSettled()
+    - Promise.any()
+    - Promise.promisify()
+
 ## 基本原理
 
 - Promise 是一个类，在执行这个类的时候会传入一个执行器，这个执行器会立即执行
@@ -19,33 +38,11 @@
     - 如果状态是成功，调用成功回调函数
     - 如果状态是失败，调用失败回调函数
 
-## 功能实现
-
-- [同步调用](/src/easy.js)
-- [异步调用](/src/easy-async.js)
-- [支持 then 多次调用](/src/easy-many.js)
-- [支持链式调用](/src/easy-chain.js)
-- [异步链式调用](/src/easy-chain-async.js)
-- [Promise A+ 规范实现](/src/promise.js)
-    - Promise.prototype.then()
-    - Promise.prototype.catch()
-    - Promise.prototype.finally()
-    - Promise.resolve()
-    - Promise.reject()
-    - Promise.all()
-    - Promise.race()
-    - Promise.allSettled()
-        - 返回是一个数字对象
-    - Promise.any()
-    - Promise.promisify()
-
-## 面试问题：
+## 面试相关：
 
 构造函数是同步的，.then() 或者 .catch() 才会到异步
 
 Promise 的所有方法都是同步执行的，返回 Promise 状态，当去执行 .then() 或者 .catch() 才会到异步
-
-
 
 - resolve() 和 reject() 是异步函数，只有 .then() 或者 .catch() 执行才会调用他们
 - new Promise(() => {})，其中() => {} 里面的代码是正常同步执行的，除了resolve() 和 reject()，和一些异步方法
@@ -84,16 +81,13 @@ Promise.allSettled().then() 的结果：
 
 [
   // 异步操作成功时
-  {status: 'fulfilled', value: value},
+  { status: 'fulfilled', value: value },
 
   // 异步操作失败时
-  {status: 'rejected', reason: reason}
+  { status: 'rejected', reason: reason }
 ]
 
 ```
-
-
-
 
 ### Promise 简单场景
 
